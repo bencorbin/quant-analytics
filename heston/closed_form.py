@@ -26,7 +26,7 @@ class Heston:
         self.t = t
         self.k = k
 
-    def char_func(self, phi, j):
+    def integrand(self, phi, j):
         """
         Calculate the characteristic function solution to the Heston PDE
         :param phi:
@@ -53,24 +53,22 @@ class Heston:
 
         return np.real(np.exp(-phi*complex(0, 1)*np.log(self.k))*f/(phi*complex(0, 1)))
 
-    def heston_prob(self, j):
+    def prob_func(self, j):
 
-        y = integrate.quad(self.char_func, 0, 1000, epsabs=0, args=j, full_output=0)
+        y = integrate.quad(self.integrand, 0, 1000, epsabs=0, args=j, full_output=0)
 
         return 0.5 + (1/np.pi) * y[0]
 
     def call(self):
 
-        return self.s0*self.heston_prob(1) - self.k * np.exp(-self.r*self.t) * self.heston_prob(2)
+        return self.s0*self.prob_func(1) - self.k * np.exp(-self.r*self.t) * self.prob_func(2)
 
     def put(self):
 
-        return self.k * self.heston_prob(2) - self.s0 * self.heston_prob(1)
+        return self.k * self.prob_func(2) - self.s0 * self.prob_func(1)
 
 
 hest = Heston(154.08, 0.0105, 0.0837, 74.32, 3.4532, 0.1, -0.8912, 1/365, 147)
-hest.char_func(1, 1)
-hest.heston_prob(1)
 hest.call()
 """
 :param s0: Initial stock price
