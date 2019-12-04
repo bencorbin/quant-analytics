@@ -45,9 +45,21 @@ class Heston:
         x = np.log(self.s0)
 
         d = np.sqrt((self.rho*self.sigma*phi*complex(0, 1) - b)**2 - self.sigma**2 * (2*u*phi*complex(0, 1) - phi**2))
-        g = (b - self.rho * self.sigma * phi * complex(0, 1) + d)/(b - self.rho * self.sigma * phi * complex(0, 1) - d)
-        c = self.r*phi*complex(0, 1)*self.t + a/self.sigma**2 * ((b-self.rho*self.sigma*phi*complex(0, 1)+d)*self.t - 2*np.log((1-g*np.exp(d*self.t))/(1-g)))
-        d = (b-self.rho*self.sigma*phi*complex(0, 1)+d)/self.sigma**2 * ((1-np.exp(d*self.t))/(1-g*np.exp(d*self.t)))
+
+        # g = (b - self.rho * self.sigma * phi * complex(0, 1) + d)/
+        # (b - self.rho * self.sigma * phi * complex(0, 1) - d)
+        g = (b - self.rho * self.sigma * phi * complex(0, 1) - d) / \
+            (b - self.rho * self.sigma * phi * complex(0, 1) + d)
+
+        # c = self.r*phi*complex(0, 1)*self.t + a/self.sigma**2 *
+        # ((b-self.rho*self.sigma*phi*complex(0, 1)+d)*self.t - 2*np.log((1-g*np.exp(d*self.t))/(1-g)))
+        c = self.r * phi * complex(0, 1) * self.t + a / self.sigma ** 2 * \
+            ((b - self.rho * self.sigma * phi * complex(0, 1) - d) * self.t - 2 * np.log((1 - g * np.exp(-d * self.t)) / (1 - g)))
+
+        # d = (b - self.rho * self.sigma * phi * complex(0, 1) + d) /
+        # self.sigma ** 2 * ((1 - np.exp(d * self.t)) / (1 - g * np.exp(d * self.t)))
+        d = (b-self.rho*self.sigma*phi*complex(0, 1)-d) / \
+            self.sigma**2 * ((1-np.exp(-d*self.t))/(1-g*np.exp(- d*self.t)))
 
         f = np.exp(c + d*self.v0 + complex(0, 1)*phi*x)
 
@@ -55,7 +67,7 @@ class Heston:
 
     def prob_func(self, j):
 
-        y = integrate.quad(self.integrand, 0, 1000, epsabs=0, args=j, full_output=0)
+        y = integrate.quad(self.integrand, 0, np.inf, epsabs=0, args=j, full_output=0)
 
         return 0.5 + (1/np.pi) * y[0]
 
