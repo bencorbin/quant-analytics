@@ -44,7 +44,14 @@ class HestonGreeks:
 
 
 initial_conditions = [154.08, 0.0105, 0.0837, 74.32, 3.4532, 0.1, -0.8912, 1 / 365, 147]
-# plot = HestonGreeks({'start': 143, 'end': 150, 'greeks': ['delta', 'gamma', 'rho', 'theta', 'vega', 'volga', 'vanna']},
+plot = HestonGreeks({
+    'start': 143,
+    'end': 150,
+    'greeks':
+        ['delta', 'gamma', 'rho', 'theta', 'vega', 'volga', 'vanna']
+},
+    *initial_conditions)
+# plot = HestonGreeks({'start': 143, 'end': 150, 'greeks': ['theta']},
 #                     *initial_conditions)
 plot.greek_sim()
 
