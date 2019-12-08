@@ -197,7 +197,7 @@ class Heston:
         :return: the change in the theoretical value of an option for a change in the time to maturity.
         """
 
-        y = integrate.quad(self.rho_integrand, 0, inf, epsabs=0, full_output=0)
+        y = integrate.quad(self.theta_integrand, 0, inf, epsabs=0, full_output=0)
 
         return - self.k * self.r * exp(- self.r * self.t) / 2 + 1/pi * y[0]
 
