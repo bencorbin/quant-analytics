@@ -1,4 +1,4 @@
-import numpy as np
+from numpy import real, exp, sqrt, log, pi, inf
 from scipy import integrate
 
 
@@ -42,9 +42,9 @@ class Heston:
             b = self.kappa
 
         a = self.kappa*self.theta
-        x = np.log(self.s0)
+        x = log(self.s0)
 
-        d = np.sqrt(
+        d = sqrt(
             (self.rho*self.sigma*phi*complex(0, 1) - b)**2 -
             self.sigma**2 * (2*u*phi*complex(0, 1) - phi**2)
         )
@@ -55,14 +55,14 @@ class Heston:
         C = self.r * phi * complex(0, 1) * self.t + a / self.sigma ** 2 * \
             (
                     (b - self.rho * self.sigma * phi * complex(0, 1) - d) *
-                    self.t - 2 * np.log((1 - g * np.exp(-d * self.t)) / (1 - g))
+                    self.t - 2 * log((1 - g * exp(-d * self.t)) / (1 - g))
             )
 
         D = (b-self.rho*self.sigma*phi*complex(0, 1)-d) / self.sigma**2 * (
-                (1-np.exp(-d*self.t))/(1-g*np.exp(- d*self.t))
+                (1-exp(-d*self.t))/(1-g*exp(- d*self.t))
         )
 
-        f = np.exp(C + D*self.v0 + complex(0, 1)*phi*x)
+        f = exp(C + D*self.v0 + complex(0, 1)*phi*x)
 
         return a, b, d, g, C, D, f
 
@@ -70,17 +70,17 @@ class Heston:
 
         (a, b, d, g, C, D, f) = self.char_func(phi, j)
 
-        return np.real(np.exp(-phi*complex(0, 1)*np.log(self.k))*f/(phi*complex(0, 1)))
+        return real(exp(-phi*complex(0, 1)*log(self.k))*f/(phi*complex(0, 1)))
 
     def prob_func(self, j):
 
-        y = integrate.quad(self.integrand, 0, np.inf, epsabs=0, args=j, full_output=0)
+        y = integrate.quad(self.integrand, 0, inf, epsabs=0, args=j, full_output=0)
 
-        return 1/2 + 1/np.pi * y[0]
+        return 1/2 + 1/pi * y[0]
 
     def call(self):
 
-        return self.s0*self.prob_func(1) - self.k * np.exp(-self.r*self.t) * self.prob_func(2)
+        return self.s0*self.prob_func(1) - self.k * exp(-self.r*self.t) * self.prob_func(2)
 
     def put(self):
 
@@ -91,10 +91,10 @@ class Heston:
         (a, b, d, g, C, D, f_1) = self.char_func(phi, 1)
         (a, b, d, g, C, D, f_2) = self.char_func(phi, 2)
 
-        return np.real(
-            np.exp(complex(0, -1) * phi * np.log(self.k)) * (
+        return real(
+            exp(complex(0, -1) * phi * log(self.k)) * (
                     (1 - complex(0, 1)/phi) *
-                    f_1 - self.k * np.exp(-self.r * self.t) / self.s0 * f_2
+                    f_1 - self.k * exp(-self.r * self.t) / self.s0 * f_2
             )
         )
 
@@ -105,19 +105,19 @@ class Heston:
         :return: the change in the theoretical value of an option for a change in price of the underlying stock price.
         """
 
-        y = integrate.quad(self.delta_integrand, 0, np.inf, epsabs=0, full_output=0)
+        y = integrate.quad(self.delta_integrand, 0, inf, epsabs=0, full_output=0)
 
-        return 1/2 + 1/np.pi * y[0]
+        return 1/2 + 1/pi * y[0]
 
     def gamma_integrand(self, phi):
 
         (a, b, d, g, C, D, f_1) = self.char_func(phi, 1)
         (a, b, d, g, C, D, f_2) = self.char_func(phi, 2)
 
-        return np.real(
-            np.exp(complex(0, -1) * phi * np.log(self.k)) * (
+        return real(
+            exp(complex(0, -1) * phi * log(self.k)) * (
                     1/self.s0 * (1 + complex(0, 1)/phi) * f_1 + self.k *
-                    np.exp(-self.r * self.t) / self.s0**2 * (1 - complex(0, 1) * phi) * f_2
+                    exp(-self.r * self.t) / self.s0**2 * (1 - complex(0, 1) * phi) * f_2
             )
         )
 
@@ -127,18 +127,18 @@ class Heston:
         :return: the change in the sensitivity of Delta for a change in price of the underlying stock price.
         """
 
-        y = integrate.quad(self.gamma_integrand, 0, np.inf, epsabs=0, full_output=0)
+        y = integrate.quad(self.gamma_integrand, 0, inf, epsabs=0, full_output=0)
 
-        return 1/np.pi * y[0]
+        return 1/pi * y[0]
 
     def rho_integrand(self, phi):
 
         (a, b, d, g, C, D, f_1) = self.char_func(phi, 1)
         (a, b, d, g, C, D, f_2) = self.char_func(phi, 2)
 
-        return np.real(
-            np.exp(complex(0, -1) * phi * np.log(self.k)) * (
-                    self.s0 * f_1 - self.k * np.exp(-self.r * self.t) * (complex(0, 1)/phi + 1) * f_2
+        return real(
+            exp(complex(0, -1) * phi * log(self.k)) * (
+                    self.s0 * f_1 - self.k * exp(-self.r * self.t) * (complex(0, 1)/phi + 1) * f_2
             )
         )
 
@@ -150,9 +150,9 @@ class Heston:
         rate.
         """
 
-        y = integrate.quad(self.rho_integrand, 0, np.inf, epsabs=0, full_output=0)
+        y = integrate.quad(self.rho_integrand, 0, inf, epsabs=0, full_output=0)
 
-        return 1/2 * self.k * self.t * np.exp(-self.r * self.t) + self.t / np.pi * y[0]
+        return 1/2 * self.k * self.t * exp(-self.r * self.t) + self.t / pi * y[0]
 
     def dC_dt(self, phi, j):
 
@@ -162,7 +162,7 @@ class Heston:
                 -(
                         b - self.rho * self.sigma * phi * complex(0, 1) + d
                 ) -
-                2 * g * d * np.exp(d * self.t) / (1 - g * np.exp(d * self.t))
+                2 * g * d * exp(d * self.t) / (1 - g * exp(d * self.t))
         )
 
     def dD_dt(self, phi, j):
@@ -172,8 +172,8 @@ class Heston:
         return (1 / self.sigma**2) * (
                 b - self.rho * self.sigma * phi * complex(0, 1) + d
         ) * (
-                d * np.exp(d * self.t) / (1 - g * np.exp(d * self.t)) -
-                 g * d * np.exp(d * self.t) * (1 - np.exp(d * self.t)) / ((1 - g * np.exp(d * self.t))**2)
+                d * exp(d * self.t) / (1 - g * exp(d * self.t)) -
+                 g * d * exp(d * self.t) * (1 - exp(d * self.t)) / ((1 - g * exp(d * self.t))**2)
         )
 
     def theta_integrand(self, phi):
@@ -187,10 +187,10 @@ class Heston:
         dD_dt_1 = self.dD_dt(phi, 1)
         dD_dt_2 = self.dD_dt(phi, 2)
 
-        return np.real(
-            complex(0, -1) * np.exp(complex(0, -1) * phi * np.log(self.k)) / phi *
+        return real(
+            complex(0, -1) * exp(complex(0, -1) * phi * log(self.k)) / phi *
             (
-                    (dC_dt_1 + self.v0 * dD_dt_1) * f_1 * self.s0 - f_2 * self.k * np.exp(- self.r * self.t) *
+                    (dC_dt_1 + self.v0 * dD_dt_1) * f_1 * self.s0 - f_2 * self.k * exp(- self.r * self.t) *
                     (self.r + dC_dt_2 + self.v0 * dD_dt_2)
             )
         )
@@ -201,18 +201,18 @@ class Heston:
         :return: the change in the theoretical value of an option for a change in the time to maturity.
         """
 
-        y = integrate.quad(self.rho_integrand, 0, np.inf, epsabs=0, full_output=0)
+        y = integrate.quad(self.rho_integrand, 0, inf, epsabs=0, full_output=0)
 
-        return - self.k * self.r * np.exp(- self.r * self.t) / 2 + 1/np.pi * y[0]
+        return - self.k * self.r * exp(- self.r * self.t) / 2 + 1/pi * y[0]
 
     def vega_integrand(self, phi):
 
         (a, b, d, g, C, D_1, f_1) = self.char_func(phi, 1)
         (a, b, d, g, C, D_2, f_2) = self.char_func(phi, 2)
 
-        return np.real(
-            complex(0, 1) * np.exp(complex(0, -1) * phi * np.log(self.k)) / phi * (
-                self.k * np.exp(-self.r * self.t) * f_2 * D_2 - self.s0 * f_1 * D_1
+        return real(
+            complex(0, 1) * exp(complex(0, -1) * phi * log(self.k)) / phi * (
+                self.k * exp(-self.r * self.t) * f_2 * D_2 - self.s0 * f_1 * D_1
             )
         )
 
@@ -223,18 +223,18 @@ class Heston:
         :return: the change in the theoretical value of an option for a change in the time to maturity.
         """
 
-        y = integrate.quad(self.vega_integrand, 0, np.inf, epsabs=0, full_output=0)
+        y = integrate.quad(self.vega_integrand, 0, inf, epsabs=0, full_output=0)
 
-        return 1/np.pi * y[0]
+        return 1/pi * y[0]
 
     def volga_integrand(self, phi):
 
         (a, b, d, g, C, D_1, f_1) = self.char_func(phi, 1)
         (a, b, d, g, C, D_2, f_2) = self.char_func(phi, 2)
 
-        return np.real(
-            complex(0, 1) * np.exp(complex(0, -1) * phi * np.log(self.k)) / phi * (
-                self.k * np.exp(-self.r * self.t) * f_2 * D_2**2 - self.s0 * f_1 * D_1**2
+        return real(
+            complex(0, 1) * exp(complex(0, -1) * phi * log(self.k)) / phi * (
+                self.k * exp(-self.r * self.t) * f_2 * D_2**2 - self.s0 * f_1 * D_1**2
             )
         )
 
@@ -244,18 +244,18 @@ class Heston:
         :return: the change in the vega of an option for a change in the volatility.
         """
 
-        y = integrate.quad(self.volga_integrand, 0, np.inf, epsabs=0, full_output=0)
+        y = integrate.quad(self.volga_integrand, 0, inf, epsabs=0, full_output=0)
 
-        return 1 / np.pi * y[0]
+        return 1 / pi * y[0]
 
     def vanna_integrand(self, phi):
 
         (a, b, d, g, C, D_1, f_1) = self.char_func(phi, 1)
         (a, b, d, g, C, D_2, f_2) = self.char_func(phi, 2)
 
-        return np.real(
-            np.exp(complex(0, -1) * phi * np.log(self.k)) * (
-                (1 - complex(0, 1)/phi) * f_1 * D_1 - self.k * np.exp(-self.r * self.t) / self.s0 * f_2 * D_2
+        return real(
+            exp(complex(0, -1) * phi * log(self.k)) * (
+                (1 - complex(0, 1)/phi) * f_1 * D_1 - self.k * exp(-self.r * self.t) / self.s0 * f_2 * D_2
             )
         )
 
@@ -265,9 +265,9 @@ class Heston:
         :return: the change in the delta of an option for a change in the volatility.
         """
 
-        y = integrate.quad(self.vanna_integrand, 0, np.inf, epsabs=0, full_output=0)
+        y = integrate.quad(self.vanna_integrand, 0, inf, epsabs=0, full_output=0)
 
-        return 1 / np.pi * y[0]
+        return 1 / pi * y[0]
 
 
 hest = Heston(154.08, 0.0105, 0.0837, 74.32, 3.4532, 0.1, -0.8912, 1/365, 147)
