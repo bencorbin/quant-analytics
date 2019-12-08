@@ -158,11 +158,11 @@ class Heston:
 
         (a, b, d, g, C, D, f) = self.char_func(phi, j)
 
-        return -self.r * phi * complex(0, 1) + a/self.sigma**2 * (
-                -(
-                        b - self.rho * self.sigma * phi * complex(0, 1) + d
+        return self.r * phi * complex(0, 1) + a/self.sigma**2 * (
+                (
+                        b - self.rho * self.sigma * phi * complex(0, 1) - d
                 ) -
-                2 * g * d * exp(d * self.t) / (1 - g * exp(d * self.t))
+                2 * g * d * exp(-d * self.t) / (1 - g * exp(-d * self.t))
         )
 
     def dD_dt(self, phi, j):
@@ -170,10 +170,10 @@ class Heston:
         (a, b, d, g, C, D, f) = self.char_func(phi, j)
 
         return (1 / self.sigma**2) * (
-                b - self.rho * self.sigma * phi * complex(0, 1) + d
+                b - self.rho * self.sigma * phi * complex(0, 1) - d
         ) * (
-                d * exp(d * self.t) / (1 - g * exp(d * self.t)) -
-                 g * d * exp(d * self.t) * (1 - exp(d * self.t)) / ((1 - g * exp(d * self.t))**2)
+                d * exp(-d * self.t) / (1 - g * exp(-d * self.t)) -
+                 g * d * exp(-d * self.t) * (1 - exp(-d * self.t)) / ((1 - g * exp(-d * self.t))**2)
         )
 
     def theta_integrand(self, phi):
