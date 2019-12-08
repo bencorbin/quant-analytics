@@ -46,26 +46,22 @@ class Heston:
 
         d = np.sqrt((self.rho*self.sigma*phi*complex(0, 1) - b)**2 - self.sigma**2 * (2*u*phi*complex(0, 1) - phi**2))
 
-        # g = (b - self.rho * self.sigma * phi * complex(0, 1) + d)/
-        # b - self.rho * self.sigma * phi * complex(0, 1) - d)
         g = (b - self.rho * self.sigma * phi * complex(0, 1) - d) / \
             (b - self.rho * self.sigma * phi * complex(0, 1) + d)
 
-        # c = self.r*phi*complex(0, 1)*self.t + a/self.sigma**2 * ((b-self.rho*self.sigma*phi*complex(0, 1)+d)*self.t -
-        # 2*np.log((1-g*np.exp(d*self.t))/(1-g)))
-        c = self.r * phi * complex(0, 1) * self.t + a / self.sigma ** 2 * \
+        C = self.r * phi * complex(0, 1) * self.t + a / self.sigma ** 2 * \
             ((b - self.rho * self.sigma * phi * complex(0, 1) - d) * self.t - 2 * np.log((1 - g * np.exp(-d * self.t)) / (1 - g)))
 
-        # d = (b - self.rho * self.sigma * phi * complex(0, 1) + d) /
-        # self.sigma ** 2 * ((1 - np.exp(d * self.t)) / (1 - g * np.exp(d * self.t)))
-        d = (b-self.rho*self.sigma*phi*complex(0, 1)-d) / \
+        D = (b-self.rho*self.sigma*phi*complex(0, 1)-d) / \
             self.sigma**2 * ((1-np.exp(-d*self.t))/(1-g*np.exp(- d*self.t)))
 
-        return np.exp(c + d*self.v0 + complex(0, 1)*phi*x)
+        f = np.exp(C + D*self.v0 + complex(0, 1)*phi*x)
+
+        return a, b, d, g, C, D, f
 
     def integrand(self, phi, j):
 
-        f = self.char_func(phi, j)
+        (a, b, d, g, C, D, f) = self.char_func(phi, j)
 
         return np.real(np.exp(-phi*complex(0, 1)*np.log(self.k))*f/(phi*complex(0, 1)))
 
@@ -73,7 +69,7 @@ class Heston:
 
         y = integrate.quad(self.integrand, 0, np.inf, epsabs=0, args=j, full_output=0)
 
-        return 0.5 + (1/np.pi) * y[0]
+        return 1/2 + 1/np.pi * y[0]
 
     def call(self):
 
@@ -85,8 +81,11 @@ class Heston:
 
     def delta_integrand(self, phi):
 
+        (a, b, d, g, C, D, f_1) = self.char_func(phi, 1)
+        (a, b, d, g, C, D, f_2) = self.char_func(phi, 2)
+
         return np.real(np.exp(complex(0, -1) * phi * np.log(self.k)) * ((1 - complex(0, 1)/phi) *
-                    self.char_func(phi, 1) - self.k * np.exp(-self.r * self.t) / self.s0 * self.char_func(phi, 2)))
+                    f_1 - self.k * np.exp(-self.r * self.t) / self.s0 * f_2))
 
     def delta(self):
 
@@ -94,9 +93,84 @@ class Heston:
 
         return 1/2 + 1/np.pi * y[0]
 
+    def gamma_integrand(self, phi):
+
+        (a, b, d, g, C, D, f_1) = self.char_func(phi, 1)
+        (a, b, d, g, C, D, f_2) = self.char_func(phi, 2)
+
+        return np.real(np.exp(complex(0, -1) * phi * np.log(self.k)) * (1/self.s0 * (1 + complex(0, 1)/phi) *
+                    f_1 + self.k * np.exp(-self.r * self.t) / self.s0**2 * (1 - complex(0, 1) *
+                    phi) * f_2))
+
+    def gamma(self):
+
+        y = integrate.quad(self.gamma_integrand, 0, np.inf, epsabs=0, full_output=0)
+
+        return 1/np.pi * y[0]
+
+    def rho_integrand(self, phi):
+
+        (a, b, d, g, C, D, f_1) = self.char_func(phi, 1)
+        (a, b, d, g, C, D, f_2) = self.char_func(phi, 2)
+
+        return np.real(np.exp(complex(0, -1) * phi * np.log(self.k)) * (self.s0 * f_1 -
+                    self.k * np.exp(-self.r * self.t) * (complex(0, 1)/phi + 1) * f_2))
+
+    def rho_h(self):
+
+        y = integrate.quad(self.rho_integrand, 0, np.inf, epsabs=0, full_output=0)
+
+        return 1/2 * self.k * self.t * np.exp(-self.r * self.t) + self.t / np.pi * y[0]
+
+    def dC_dt(self, phi, j):
+
+        (a, b, d, g, C, D, f) = self.char_func(phi, j)
+
+        return -self.r * phi * complex(0, -1) + a/self.sigma**2 * \
+               (-(b - self.rho * self.sigma * phi * complex(0, 1) + d) -
+                2 * g * d * np.exp(d * self.t) / (1 - g * np.exp(d * self.t)))
+
+    def dD_dt(self, phi, j):
+
+        (a, b, d, g, C, D, f) = self.char_func(phi, j)
+
+        return 1 / self.sigma * (b - self.rho * self.sigma * phi * complex(0, 1) + d) * \
+                (d * np.exp(d * self.t) / (1 - g * np.exp(d * self.t)) -
+                 g * d * np.exp(d * self.t) * (1 - np.exp(d * self.t))/(1 - g * np.exp(d * self.t)**2))
+
+    def theta_integrand(self, phi):
+
+        (a, b, d, g, C, D, f_1) = self.char_func(phi, 1)
+        (a, b, d, g, C, D, f_2) = self.char_func(phi, 2)
+
+        dC_dt_1 = self.dC_dt(phi, 1)
+        dC_dt_2 = self.dC_dt(phi, 2)
+
+        dD_dt_1 = self.dC_dt(phi, 1)
+        dD_dt_2 = self.dC_dt(phi, 2)
+
+        return np.real(complex(0, -1) * np.exp(complex(0, -1) * phi * np.log(self.k)) / phi *
+                       (
+                           (dC_dt_1 + self.v0 * dD_dt_1) * f_1 * self.s0 - f_2 * self.k * np.exp(- self.r * self.t) *
+                           (
+                           self.r + dC_dt_2 + self.v0 * dD_dt_2)
+                           )
+                       )
+
+    def theta_h(self):
+
+        y = integrate.quad(self.rho_integrand, 0, np.inf, epsabs=0, full_output=0)
+
+        return - self.k * self.r * np.exp(- self.r * self.t) / 2 + 1/np.pi * y[0]
+
 
 hest = Heston(154.08, 0.0105, 0.0837, 74.32, 3.4532, 0.1, -0.8912, 1/365, 147)
+hest.prob_func(1)
 hest.call()
 hest.delta()
+hest.gamma()
+hest.rho_h()
+hest.theta_h()
+
 
 
