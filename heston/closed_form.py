@@ -183,11 +183,19 @@ class Heston:
         dD_dt_1 = self.dD_dt(phi, b_1, d_1, g_1)
         dD_dt_2 = self.dD_dt(phi, b_2, d_2, g_2)
 
+        # return real(
+        #     complex(0, -1) * exp(complex(0, -1) * phi * log(self.k)) / phi *
+        #     (
+        #             (dC_dt_1 + self.v0 * dD_dt_1) * f_1 * self.s0 - f_2 * self.k * exp(- self.r * self.t) *
+        #             (self.r + dC_dt_2 + self.v0 * dD_dt_2)
+        #     )
+        # )
+
         return real(
             complex(0, -1) * exp(complex(0, -1) * phi * log(self.k)) / phi *
             (
                     (dC_dt_1 + self.v0 * dD_dt_1) * f_1 * self.s0 - f_2 * self.k * exp(- self.r * self.t) *
-                    (self.r + dC_dt_2 + self.v0 * dD_dt_2)
+                    (-self.r + dC_dt_2 + self.v0 * dD_dt_2)
             )
         )
 
@@ -199,7 +207,7 @@ class Heston:
 
         y = integrate.quad(self.theta_integrand, 0, inf, epsabs=0, full_output=0)
 
-        return - self.k * self.r * exp(- self.r * self.t) / 2 + 1/pi * y[0]
+        return self.k * self.r * exp(- self.r * self.t) / 2 + (1/pi) * y[0]
 
     def vega_integrand(self, phi):
 
