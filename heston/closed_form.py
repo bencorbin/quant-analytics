@@ -148,7 +148,7 @@ class Heston:
             )
         )
 
-    def rho_h(self):
+    def rho_h(self, option_type):
         """
         Rho measures the sensitivity of the theoretical value of an option to a change in the continuously compounded
         interest rate.
@@ -158,7 +158,11 @@ class Heston:
 
         y = integrate.quad(self.rho_integrand, 0, inf, epsabs=0, full_output=0)
 
-        return 1/2 * self.k * self.t * exp(-self.r * self.t) + self.t / pi * y[0]
+        if option_type == 'call':
+            return 1/2 * self.k * self.t * exp(-self.r * self.t) + self.t / pi * y[0]
+
+        else:
+            return -1/2 * self.k * self.t * exp(-self.r * self.t) + self.t / pi * y[0]
 
     def dC_dt(self, phi, a, b, d, g):
 
@@ -197,7 +201,7 @@ class Heston:
             )
         )
 
-    def theta_h(self):
+    def theta_h(self, option_type):
         """
         Theta measures the sensitivity of the theoretical value of an option to a change in the time to maturity.
         :return: the change in the theoretical value of an option for a change in the time to maturity.
@@ -205,7 +209,10 @@ class Heston:
 
         y = integrate.quad(self.theta_integrand, 0, inf, epsabs=0, full_output=0)
 
-        return -(self.k * self.r * exp(- self.r * self.t) / 2 + (1/pi) * y[0])
+        if option_type == 'call':
+            return -(self.k * self.r * exp(- self.r * self.t) / 2 + (1/pi) * y[0])
+        else:
+            return -(-self.k * self.r * exp(- self.r * self.t) / 2 + (1/pi) * y[0])
 
     def vega_integrand(self, phi):
 
@@ -218,14 +225,17 @@ class Heston:
             )
         )
 
-    def vega(self):
+    def vega(self, option_type):
         """
         Vega measures the sensitivity of the theoretical value of an option to a change in the volatility of return of
         the underlying asset.
         :return: the change in the theoretical value of an option for a change in the time to maturity.
         """
 
-        y = integrate.quad(self.vega_integrand, 0, inf, epsabs=0, full_output=0)
+        if option_type == 'call' or 'put':
+            y = integrate.quad(self.vega_integrand, 0, inf, epsabs=0, full_output=0)
+        else:
+            raise Exception("variable 'option_type' must be either 'call' or 'put'.")
 
         return 1/pi * y[0]
 
@@ -240,13 +250,16 @@ class Heston:
             )
         )
 
-    def volga(self):
+    def volga(self, option_type):
         """
         Volga measures the sensitivity of vega to a change in the volatility of returns of the underlying asset.
         :return: the change in the vega of an option for a change in the volatility.
         """
 
-        y = integrate.quad(self.volga_integrand, 0, inf, epsabs=0, full_output=0)
+        if option_type == 'call' or 'put':
+            y = integrate.quad(self.volga_integrand, 0, inf, epsabs=0, full_output=0)
+        else:
+            raise Exception("variable 'option_type' must be either 'call' or 'put'.")
 
         return 1 / pi * y[0]
 
@@ -261,13 +274,16 @@ class Heston:
             )
         )
 
-    def vanna(self):
+    def vanna(self, option_type):
         """
         Vanna measures the sensitivity of delta to a change in the volatility of returns of the underlying asset.
         :return: the change in the delta of an option for a change in the volatility.
         """
 
-        y = integrate.quad(self.vanna_integrand, 0, inf, epsabs=0, full_output=0)
+        if option_type == 'call' or 'put':
+            y = integrate.quad(self.vanna_integrand, 0, inf, epsabs=0, full_output=0)
+        else:
+            raise Exception("variable 'option_type' must be either 'call' or 'put'.")
 
         return 1 / pi * y[0]
 
@@ -278,11 +294,11 @@ hest.call()
 hest.put()
 hest.delta('call')
 hest.gamma('call')
-hest.rho_h()
-hest.theta_h()
-hest.vega()
-hest.volga()
-hest.vanna()
+hest.rho_h('call')
+hest.theta_h('call')
+hest.vega('call')
+hest.volga('call')
+hest.vanna('call')
 
 
 
