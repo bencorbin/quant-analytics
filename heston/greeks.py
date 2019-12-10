@@ -14,6 +14,7 @@ class HestonGreeks:
         (self.s, self.k, self.t, self.sigma, self.r) = blackscholes_init_conditions
 
     def hest_greek_function_mapping(self, hest, greek):
+        # TODO: update so only required greek is calculated when function is called
         map = {
             'delta': hest.delta(),
             'gamma': hest.gamma(),
@@ -74,7 +75,7 @@ bs_initial_conditions = (154.08, 155, 15 / 365, 0.2331, 0.1)
 #         ['delta', 'gamma', 'rho', 'theta', 'vega', 'volga', 'vanna']
 # },
 #     *initial_conditions)
-plot = HestonGreeks({'start': 120, 'end': 190, 'greeks': ['delta', 'gamma', 'rho', 'theta']},
+plot = HestonGreeks({'start': 120, 'end': 190, 'greeks': ['theta']},
                     hest_initial_conditions,
                     bs_initial_conditions)
 plot.greek_sim()
