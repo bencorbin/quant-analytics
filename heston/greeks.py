@@ -13,16 +13,16 @@ class HestonGreeks:
 
         (self.s, self.k, self.t, self.sigma, self.r) = blackscholes_init_conditions
 
-    def hest_greek_function_mapping(self, hest, greek):
+    def hest_greek_function_mapping(self, hest, greek, option_type):
         # TODO: update so only required greek is calculated when function is called
         map = {
-            'delta': hest.delta(),
-            'gamma': hest.gamma(),
-            'rho': hest.rho_h(),
-            'theta': hest.theta_h(),
-            'vega': hest.vega(),
-            'volga': hest.volga(),
-            'vanna': hest.vanna()
+            'delta': hest.delta(option_type),
+            'gamma': hest.gamma(option_type),
+            'rho': hest.rho_h(option_type),
+            'theta': hest.theta_h(option_type),
+            'vega': hest.vega(option_type),
+            'volga': hest.volga(option_type),
+            'vanna': hest.vanna(option_type)
         }
 
         return map[greek]
@@ -51,14 +51,16 @@ class HestonGreeks:
                 hest = Heston(stock, self.v0, self.theta, self.kappa, self.sigma, self.r, self.rho, self.t, self.k)
                 bs = BlackScholes(stock, self.k, self.t, self.sigma, self.r)
 
-                hest_greek_value = self.hest_greek_function_mapping(hest, greek)
+                hest_greek_value = self.hest_greek_function_mapping(hest, greek, 'call')
                 bs_greek_value = self.bs_greek_function_mapping(bs, greek, 'call')
 
                 store_hest_greek.append(hest_greek_value)
                 store_bs_greek.append(bs_greek_value)
 
             plt.figure()
-            plt.plot(arange(start, end, 0.5), store_hest_greek, arange(start, end, 0.5), store_bs_greek)
+            plt.plot(arange(start, end, 0.5), store_hest_greek, label='Heston')
+            plt.plot(arange(start, end, 0.5), store_bs_greek, label='Black-Scholes')
+            plt.legend()
             plt.xlabel('Stock Price')
             plt.ylabel("{0}".format(greek))
             plt.title("{0} of European Call Option".format(greek))
