@@ -84,7 +84,7 @@ class Heston:
 
     def put(self):
 
-        return self.k * self.prob_func(2) - self.s0 * self.prob_func(1)
+        return self.k * exp(-self.r*self.t) * (1 - self.prob_func(2)) - self.s0 * (1 - self.prob_func(1))
 
     def delta_integrand(self, phi):
 
@@ -98,7 +98,7 @@ class Heston:
             )
         )
 
-    def delta(self):
+    def delta(self, option_type):
         """
         Delta measures the sensitivity of the theoretical value of an option to a change in price of the underlying
         stock price.
@@ -107,7 +107,10 @@ class Heston:
 
         y = integrate.quad(self.delta_integrand, 0, inf, epsabs=0, full_output=0)
 
-        return 1/2 + 1/pi * y[0]
+        if option_type == 'call':
+            return 1/2 + 1/pi * y[0]
+        else:
+            return -1/2 + 1/pi * y[0]
 
     def gamma_integrand(self, phi):
 
@@ -116,18 +119,21 @@ class Heston:
 
         return real(
             exp(complex(0, -1) * phi * log(self.k)) * (
-                    1/self.s0 * (1 + complex(0, 1)/phi) * f_1 + self.k *
+                    1/self.s0 * (1 + complex(0, 1) * phi) * f_1 + self.k *
                     exp(-self.r * self.t) / self.s0**2 * (1 - complex(0, 1) * phi) * f_2
             )
         )
 
-    def gamma(self):
+    def gamma(self, option_type):
         """
         Gamma measures the sensitivity of Delta to a change in price of the underlying stock price.
         :return: the change in the sensitivity of Delta for a change in price of the underlying stock price.
         """
 
-        y = integrate.quad(self.gamma_integrand, 0, inf, epsabs=0, full_output=0)
+        if option_type == 'call' or 'put':
+            y = integrate.quad(self.gamma_integrand, 0, inf, epsabs=0, full_output=0)
+        else:
+            raise Exception("variable 'option_type' must be either 'call' or 'put'.")
 
         return 1/pi * y[0]
 
@@ -183,14 +189,6 @@ class Heston:
         dD_dt_1 = self.dD_dt(phi, b_1, d_1, g_1)
         dD_dt_2 = self.dD_dt(phi, b_2, d_2, g_2)
 
-        # return real(
-        #     complex(0, -1) * exp(complex(0, -1) * phi * log(self.k)) / phi *
-        #     (
-        #             (dC_dt_1 + self.v0 * dD_dt_1) * f_1 * self.s0 - f_2 * self.k * exp(- self.r * self.t) *
-        #             (self.r + dC_dt_2 + self.v0 * dD_dt_2)
-        #     )
-        # )
-
         return real(
             complex(0, -1) * exp(complex(0, -1) * phi * log(self.k)) / phi *
             (
@@ -207,7 +205,7 @@ class Heston:
 
         y = integrate.quad(self.theta_integrand, 0, inf, epsabs=0, full_output=0)
 
-        return self.k * self.r * exp(- self.r * self.t) / 2 + (1/pi) * y[0]
+        return -(self.k * self.r * exp(- self.r * self.t) / 2 + (1/pi) * y[0])
 
     def vega_integrand(self, phi):
 
@@ -278,8 +276,8 @@ hest = Heston(154.08, 0.0105, 0.0837, 74.32, 3.4532, 0.1, -0.8912, 1/365, 147)
 hest.prob_func(1)
 hest.call()
 hest.put()
-hest.delta()
-hest.gamma()
+hest.delta('call')
+hest.gamma('call')
 hest.rho_h()
 hest.theta_h()
 hest.vega()
