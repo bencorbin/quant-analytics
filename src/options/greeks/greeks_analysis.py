@@ -13,32 +13,38 @@ class HestonGreeks:
 
         (self.s0, self.k, self.t, self.sigma, self.r) = input_dictionary['black scholes initial conditions']
 
-    def hest_greek_function_mapping(self, hest, greek, option_type):
-        # TODO: update so only required greek is calculated when function is called
-        map = {
-            'delta': hest.delta(option_type),
-            'gamma': hest.gamma(option_type),
-            'rho': hest.rho_h(option_type),
-            'theta': hest.theta_h(option_type),
-            'vega': hest.vega(option_type),
-            'volga': hest.volga(option_type),
-            'vanna': hest.vanna(option_type)
-        }
+    @staticmethod
+    def hest_greek_function_mapping(hest, greek, option_type):
+        if greek == 'delta':
+            return hest.delta(option_type)
+        elif greek == 'gamma':
+            return hest.gamma(option_type)
+        elif greek == 'rho':
+            return hest.rho_h(option_type)
+        elif greek == 'theta':
+            return hest.theta(option_type)
+        elif greek == 'vega':
+            return hest.vega(option_type)
+        elif greek == 'volga':
+            return hest.volga(option_type)
+        elif greek == 'vanna':
+            return hest.vanna(option_type)
 
-        return map[greek]
 
-    def bs_greek_function_mapping(self, bs, greek, option_type):
-        map = {
-            'delta': bs.delta(option_type),
-            'gamma': bs.gamma(option_type),
-            'rho': bs.rho(option_type),
-            'theta': bs.theta(option_type),
-            'vega': bs.vega(option_type),
-            # 'volga': bs.volga(option_type),
-            # 'vanna': bs.vanna(option_type)
-        }
-
-        return map[greek]
+    @staticmethod
+    def bs_greek_function_mapping(bs, greek, option_type):
+        if greek == 'delta':
+            return bs.delta(option_type)
+        elif greek == 'gamma':
+            return bs.gamma(option_type)
+        elif greek == 'rho':
+            return bs.rho(option_type)
+        elif greek == 'theta':
+            return bs.theta(option_type)
+        elif greek == 'vega':
+            return bs.vega(option_type)
+        # 'volga': bs.volga(option_type),
+        # 'vanna': bs.vanna(option_type)
 
     def vary_parameter_mapping(self, param_to_vary, param):
 
@@ -107,11 +113,32 @@ plot = HestonGreeks({
             'step': 1,
             'option_type': 'call'
         },
+        'gamma': {
+            'vary_parameter': 'Stock Price',
+            'start': 120,
+            'end': 190,
+            'step': 1,
+            'option_type': 'call'
+        },
+        'rho': {
+            'vary_parameter': 'Stock Price',
+            'start': 120,
+            'end': 190,
+            'step': 1,
+            'option_type': 'call'
+        },
+        'theta': {
+            'vary_parameter': 'Stock Price',
+            'start': 120,
+            'end': 190,
+            'step': 1,
+            'option_type': 'call'
+        },
         'vega': {
-            'vary_parameter': 'Initial Volatility',
-            'start': 0.01,
-            'end': 0.1,
-            'step': 0.01,
+            'vary_parameter': 'Stock Price',
+            'start': 120,
+            'end': 190,
+            'step': 1,
             'option_type': 'call'
         }
     }
