@@ -1,0 +1,432 @@
+\documentclass[a4paper]{article}
+\usepackage[parfill]{parskip}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[T1]{fontenc}
+\usepackage{enumerate}
+\usepackage{mathtools}
+\usepackage{fancyref}
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[usenames, dvipsnames]{color}
+\usepackage{rotating}
+\usepackage{comment}
+
+\begin{document}
+
+\subsection{Heston Greeks}
+
+In the Heston model we have the following PDE \cite{Heston_1993}:
+
+\begin{equation*}
+	\hspace{-50pt} \frac{1}{2}vS^2\frac{\partial^2 U}{\partial S^2} + \rho \sigma vS\frac{\partial^2 U}{\partial S \partial v} + \frac{1}{2} \sigma^2 v \frac{\partial^2 U}{\partial v^2} + rS\frac{\partial U}{\partial S}
+\end{equation*}
+\begin{equation}
+	+ {\kappa [\theta-v(t)] - \lambda(S,v,t)}\frac{\partial U}{\partial v} -rC + \frac{\partial U}{\partial t} = 0.
+	\label{eq:Heston_PDE}
+\end{equation}
+Where $U$ is the price of a European call option.
+
+The Heston Greeks are as follows:
+\begin{equation*}
+	\Delta = \frac{\partial U}{\partial S}, \quad \Gamma = \frac{\partial^2 U}{\partial S^2}, \quad \rho = \frac{\partial U}{\partial r}, \quad \Theta = \frac{\partial U}{\partial t}, \quad Vega = \frac{\partial U}{\partial \sigma}
+\end{equation*}
+\begin{equation}
+	Vega = \frac{\partial U}{\partial v}, \quad Volga = \frac{\partial^2 U}{\partial v^2}, \quad Vanna = \frac{\partial^2 U}{\partial S \partial v}
+	\label{eq:Heston_greeks}
+\end{equation}
+Using Equations (\ref{eq:Heston_PDE}) \& (\ref{eq:Heston_greeks}):
+\begin{equation*}
+	\hspace{-50pt} \frac{1}{2}vS^2\textcolor{red}{\Gamma} + \rho \sigma vS\textcolor{red}{Vanna} + \frac{1}{2} \sigma^2 v \textcolor{red}{Volga} + rS\textcolor{red}{\Delta}
+\end{equation*}
+\begin{equation}
+	+ {\kappa [\theta-v(t)] - \lambda(S,v,t)}\textcolor{red}{Vega} -rC + \textcolor{red}{\Theta} = 0.
+\end{equation}
+Therefore, the Greeks are very important. 
+
+To avoid confusion with the Black-Scholes Greeks, we will use the subscript \textit{H} to signify the Heston Greeks. 
+
+Recall the closed-form solution:
+
+\begin{equation}
+	C_t = S_tP_1 - Ke^{-r\tau}P_2,
+	\label{eq:Heston_C}
+\end{equation}
+
+where $\tau=T-t$. Additionally, recall that the characteristic functions can be inverted to obtain the desired probabilities:
+
+\begin{equation}
+	P_j(x,v,\tau;\ln K) = \frac{1}{2} + \frac{1}{\pi} \int_0^\infty Re \left[\frac{e^{-i\phi \ln K}f_j(x,v,\tau;\phi)}{i\phi} \right] d\phi. 
+	\label{eq:Heston_prob}
+\end{equation}
+
+
+
+\newpage
+
+
+
+\subsubsection*{Delta - Call}
+
+Delta measures the sensitivity of the theoretical value of an option to a change in the price of the underlying stock price.
+
+\begin{equation}
+	\mbox{Delta}_{Call} = \Delta_H = \frac{\partial U}{\partial S} = P_1 + S_t\frac{\partial P_1}{\partial S} - Ke^{-r\tau}\frac{\partial P_2}{\partial S} 
+	\label{eq:Heston_Delta_Start}
+\end{equation}
+
+From Equation (\ref{eq:Heston_prob}), we have:
+
+\begin{equation*}
+	\frac{\partial P_j}{\partial S} = \frac{1}{\pi}\int_0^{\infty}\mbox{Re} \left\{\frac{\partial}{\partial S} \left[\frac{e^{-i\phi \ln K}f_j(x,v,\tau;\phi)}{i\phi}\right] \right\} d\phi, \quad \text{for \textit{j}=1,2.} 
+\end{equation*}
+
+The only term that includes \textit{S} is $f_j(x,v,\tau;\phi)$ from $x=\ln S$. Therefore, 
+\begin{equation}
+	\frac{\partial P_j}{\partial S} = \frac{1}{\pi}\int_0^{\infty} \mbox{Re} \left\{ \frac{e^{-i\phi \ln K}}{i\phi}  \frac{\partial f_j(x,v,\tau;\phi)}{\partial S} \right\} d\phi. 
+	\label{eq:Heston_prob_S}
+\end{equation} 
+Recall, the characteristic function solution for $P_j$ is:
+\begin{equation*}
+	f_j(x,v,t;\phi) = e^{C_j(\tau;\phi) + D_j(\tau;\phi)v + i\phi x},
+\end{equation*}
+Differentiating this with respect to \textit{S} we obtain:
+\begin{align}
+	\frac{\partial f_j(x,v,\tau;\phi)}{\partial S} &  = e^{C_j(\tau;\phi) + D_j(\tau;\phi)v} \frac{\partial e^{i\phi \ln S}}{\partial S} \\
+	 & = e^{C_j(\tau;\phi) + D_j(\tau;\phi)v}\frac{i\phi}{S}e^{i\phi \ln S} \\
+	 & = f_j(x,v,\tau;\phi) \frac{i\phi}{S} \label{eq:Heston_dfds}
+\end{align}
+Substituting this into Equation (\ref{eq:Heston_prob_S}):
+\begin{align}
+	\frac{\partial P_j}{\partial S} & = \frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} f_j(x,v,\tau;\phi) \frac{i\phi}{S} \right\} d\phi \\
+	 & = \frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K} f_j(x,v,\tau;\phi)}{S} \right\} d\phi \label{eq:Heston_prob_S_2}
+\end{align}
+Substituting Equation (\ref{eq:Heston_prob_S_2}) into Equation (\ref{eq:Heston_Delta_Start}) to obtain $\Delta_H$:
+\begin{align*}
+	\Delta_H & = P_1 + \frac{1}{\pi}\int_0^{\infty} Re \left\{ e^{-i\phi \ln K} f_1(x,v,\tau;\phi) \right\} d\phi \\      
+	& \quad \quad \quad \quad \quad - \frac{K}{S_t\pi}e^{-r\tau}\int_0^{\infty} Re \left\{ e^{-i\phi \ln K} f_2(x,v,\tau;\phi) \right\} d\phi.
+\end{align*}
+
+Substituting $P_1$, using \textit{1/i=-i}, and simplify:
+
+\begin{equation} \label{Del}
+\Delta_H = \frac{1}{2}+\frac{1}{\pi}\int_0^\infty \mbox{Re}\left\{e^{-i \phi \ln K} \left(\left(1-\frac{i}{\phi}\right) f_1-\frac{K e^{-r\tau}}{S_t}f_2\right)\right\}d \phi 
+\end{equation}
+
+
+\newpage
+
+
+
+\subsubsection*{Delta - Put}
+
+Recall the closed-form solution:
+
+\begin{equation}
+	P_t = Ke^{-r\tau}(1-P_2) -  S_t(1-P_1)
+	\label{eq:Heston_C}
+\end{equation}
+
+Differentiating with respect to \textit{S}
+
+\begin{align*}
+	\mbox{Delta}_{Put} 
+	& = \Delta_{} = \frac{\partial P_t}{\partial S} = 
+	- Ke^{-r\tau}\frac{\partial P_2}{\partial S} 
+	- P_2 
+	+ P_1\frac{\partial (SP_1)}{\partial S} \\
+	& 
+	= P_1 
+	+ S \frac{\partial P_1}{\partial S} 
+	- Ke^{-r\tau}\frac{\partial P_2}{\partial S} 
+	- 1 \\
+	& = \frac{1}{2}
+	+ \frac{1}{\pi} \int_0^\infty \mbox{Re}\left\{\frac{e^{-i \phi \ln K}}{i\phi}f_1 \right\} 
+	+ \frac{S}{\pi} \int_0^\infty \mbox{Re}\left\{\frac{e^{-i \phi \ln K}}{S}f_1 \right\} \\
+	& \quad \quad - Ke^{-r\tau} \frac{1}{\pi} \int_0^\infty \mbox{Re}\left\{\frac{e^{-i \phi \ln K}}{S}f_2 \right\} \\
+	&
+	= -\frac{1}{2} 
+	+ \frac{1}{\pi} \int_0^\infty \mbox{Re}\left\{e^{-i \phi \ln K} \left[\frac{1}{i \phi}f_1 + f_1 - \frac{Ke^{-r\tau}}{S}f_2 \right] \right\} \\
+	& 
+	= -\frac{1}{2} 
+	+ \frac{1}{\pi} \int_0^\infty \mbox{Re}\left\{e^{-i \phi \ln K} \left[\left(1-\frac{i}{\phi} \right)f_1 - \frac{Ke^{-r\tau}}{S}f_2 \right] \right\}
+\end{align*}
+
+
+
+
+\subsubsection*{Gamma}
+
+Gamma measures the sensitivity of Delta to a change in the price of the underlying stock price.
+
+\[Gamma_H = \Gamma_H  = \frac{\partial^2C}{\partial S^2} =\frac{\partial \Delta_H}{\partial S} \]
+
+Differentiate Equation (\ref{Del}) with respect to $S$:
+
+\[ \Gamma_H=\frac{1}{\pi} \int_0^\infty \mbox{Re}\left\{e^{-i\phi \ln K} \left(\frac{1}{S}(1+i\phi)f_1+\frac{Ke^{-r\tau}}{S^2}(1-i\phi) f_2\right)\right\}d\phi\]
+
+Gamma is the same put a put and call.
+
+
+
+\newpage
+
+
+
+\subsubsection*{Rho - Call}
+
+Rho measures the sensitivity of the theoretical value of an option to a change in the continuously compounded interest rate.
+
+\begin{equation}
+	Rho_H = \rho_H = \frac{\partial U}{\partial r} = S_t\frac{\partial P_1}{\partial r} + K\tau e^{-r\tau}P_2 - Ke^{-r\tau}\frac{\partial P_2}{\partial r}
+	\label{eq:Heston_rho_start}
+\end{equation}
+Differentiating the desired probabilities with respect to \textit{r} gives:
+\begin{equation}
+	\frac{\partial P_j}{\partial r} = \frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi}\frac{\partial f_j}{\partial r} \right\} d\phi.
+	\label{eq:Heston_dpdr}
+\end{equation}
+Differentiating the characteristic function solution with respect to \textit{r} gives:
+\begin{equation}
+\frac{\partial f_j}{\partial r} = \frac{\partial e^{C_j(\tau;\phi) + D_j(\tau;\phi)v + i\phi x}}{\partial r}
+	\label{eq:Heston_dfdr}
+\end{equation}
+The only term that includes \textit{r} is $C_j(\tau;\phi)$. Recall: 
+\begin{equation*}
+	C_j(\tau;\phi) = r\phi i\tau + \frac{a}{\sigma^2} \left\{(b_j - \rho \sigma \phi i + d) \tau - 2ln\left[ \frac{1 - \delta e^{d \tau}}{1 - \delta} \right] \right\},
+	\label{eq:Heston_C}
+\end{equation*}
+Differentiating above with respect to \textit{r} gives:
+\begin{equation}
+	\frac{\partial C_j}{\partial r} = \phi i \tau.
+	\label{eq:Heston_dcdr}
+\end{equation}
+Substituting Equation (\ref{eq:Heston_dcdr}) into Equation (\ref{eq:Heston_dfdr}):
+\begin{equation}
+	\frac{\partial f_j}{\partial r} = \phi i \tau f_j.
+	\label{eq:Heston_dfdr2}
+\end{equation}
+Substituting Equation (\ref{eq:Heston_dfdr2}) into Equation (\ref{eq:Heston_dpdr}):
+\begin{align*}
+	\frac{\partial P_j}{\partial r} & = \frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} \phi i\tau f_j \right\} d\phi \\
+	& = \frac{1}{\pi}\int_0^{\infty} Re \left\{ e^{-i\phi \ln K} \tau f_j \right\} d\phi. 
+\end{align*}
+Finally, substitute this into Equation (\ref{eq:Heston_rho_start}) to obtain Rho:
+\begin{equation*}
+	\hspace{-65pt} \rho_H = S_t\frac{1}{\pi} \int_0^{\infty} Re \left\{ e^{-i\phi \ln K}\tau f_1(x,v,\tau;\phi) \right\} d\phi + \tau Ke^{-r\tau}P_2
+\end{equation*}
+\begin{equation}
+	\hspace{60pt} -Ke^{-r\tau}\frac{1}{\pi}\int_0^{\infty} Re \left\{ e^{-i\phi \ln K}\tau f_2(x,v,\tau;\phi) \right\} d\phi
+\end{equation}
+This can be simplified to give:
+\[\rho_H=\frac{1}{2}K\tau e^{-r\tau} +\frac{\tau}{\pi}\int_0^\infty \mbox{Re}\left\{e^{-i\phi \ln K} \left(S_t f_1-Ke^{-r\tau}\left(\frac{i}{\phi}+1\right)f_2\right)\right\} d\phi\]
+
+
+
+
+\newpage
+
+
+
+
+
+
+\subsubsection*{Rho - Put}
+
+
+
+
+Recall the closed-form solution:
+
+\begin{equation}
+	P_t = Ke^{-r\tau}(1-P_2) -  S_t(1-P_1)
+	\label{eq:Heston_C}
+\end{equation}
+
+Differentiating with respect to \textit{r}
+
+\begin{align*}
+	\mbox{Rho}_{Put} 
+	& = \rho = \frac{\partial P_t}{\partial r} 
+	= 
+	- K\tau e^{-r\tau} + K\tau e^{-r\tau} P_2
+	- K e^{-r\tau} \frac{\partial P_2}{\partial r}
+	+ S\frac{\partial P_1}{\partial r} \\
+	& 
+	= 
+	- K\tau e^{-r\tau}
+	+ \frac{K\tau e^{-r\tau}}{2} 
+	+ \frac{K\tau e^{-r\tau}}{\pi} \int_0^\infty \mbox{Re}\left[\frac{e^{-r\tau}}{i\phi} f_2 \right] \\
+	&
+	\quad \quad- \frac{Ke^{-r\tau}}{\pi} \int_0^\infty \mbox{Re}\left[e^{-i\phi ln(k)} \tau f_2 \right]
+	+ \frac{S}{\pi} \int_0^\infty \mbox{Re}\left[e^{-i\phi ln(k)} \tau f_1 \right] \\
+	&
+	= 
+	- \frac{K\tau e^{-r\tau}}{2} 
+	+ \frac{\tau}{\pi} \int_0^\infty \mbox{Re}\left\{e^{-i\phi ln(k)} \left[Ke^{-r\tau} \left(\frac{1}{i\phi} - 1 \right)f_2 + Sf_1 \right] \right\} \\
+	&
+	=
+	- \frac{K\tau e^{-r\tau}}{2} 
+	+ \frac{\tau}{\pi} \int_0^\infty \mbox{Re}\left\{e^{-i\phi ln(k)} \left[Sf_1 - Ke^{-r\tau} \left(1 + \frac{i}{\phi} \right)f_2 \right] \right\} \\
+\end{align*}
+
+
+
+
+
+\newpage
+
+
+
+
+
+\subsubsection*{Theta}
+
+Theta measures the sensitivity of the theoretical value of an option to a change in the time to maturity.
+
+\begin{equation}
+	\mbox{Theta}_H = \Theta_H = \frac{\partial U}{\partial t} = S_t\frac{\partial P_1}{\partial t} - Kre^{-r(T-t)}P_2 - ke^{-r(T-t)}\frac{\partial P_2}{\partial t}
+	\label{eq:Heston_theta_start}
+\end{equation}
+Differentiating the desired probabilities with respect to \textit{t} gives:
+\begin{equation}
+	\frac{\partial P_j}{\partial t} = \frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi}\frac{\partial f_j}{\partial t} \right\} d\phi.
+	\label{eq:Heston_dpdt}
+\end{equation}
+Differentiating the characteristic function solution with respect to \textit{t} gives:
+\begin{equation}
+\frac{\partial f_j}{\partial t} = \frac{\partial e^{C_j((T-t);\phi) + D_j((T-t);\phi)v + i\phi x}}{\partial t}
+	\label{eq:Heston_dfdt}
+\end{equation}
+\begin{equation}
+	= \left(\frac{\partial C_j}{\partial t} + v\frac{\partial D_j}{\partial t}\right)f_j
+	\label{eq:Heston_dfdt2}
+\end{equation}
+Terms $C_j((T-t);\phi)$ \& $D_j((T-t);\phi)$ contain \textit{t}. Differentiating $C_j((T-t);\phi)$ with respect to t:
+\begin{equation}
+	\frac{\partial C_j}{\partial t} = -r\phi i + \frac{a}{\sigma^2} \left\{ -(b_j-\rho \sigma \phi i + d) - \frac{2\delta d e^{d(T-t)}}{1-\delta e^{d(T-t)}} \right\}
+	\label{eq:Heston_dcdt}
+\end{equation}
+Recall:
+\begin{equation*}
+	D_j((T-t);\phi) = \frac{b_j - \rho \sigma \phi i + d}{\sigma^2} \left[ \frac{1 - e^{d (T-t)}}{1 - \delta e^{d (T-t)}} \right],
+\end{equation*}
+Differentiating $D_j(\tau;\phi)$ with respect to \textit{t}:
+\begin{equation}
+	\frac{\partial D_j}{\partial t} = \frac{b_j - \rho \sigma \phi i + d}{\sigma^2} \left\{ \frac{de^{d(T-t)}}{1-\delta e^{d(T-t)}} - \frac{\delta d e^{d(T-t)}(1-e^{d(T-t)})}{(1-\delta e^{d(T-t)})^2} \right\}
+	\label{eq:Heston_dddt}
+\end{equation}
+Substituting Equation (\ref{eq:Heston_dfdt2}) into (\ref{eq:Heston_dpdt}):
+\begin{equation}
+	\frac{\partial P_j}{\partial t} = \frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} \left( \frac{\partial C_j}{\partial t} + v\frac{\partial D_j}{\partial t} \right) f_j \right\} d\phi.
+	\label{eq:Heston_dpdt2}
+\end{equation}
+Finally, substituting Equation (\ref{eq:Heston_dpdt2}) into Equation (\ref{eq:Heston_theta_start}) to obtain \textit{Theta$_H$}:
+\begin{equation*}
+	\hspace{-40pt} \Theta_H = S_t \frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} \left( \frac{\partial C_1}{\partial t} + v\frac{\partial D_1}{\partial t} \right) f_1 \right\} d\phi - Kre^{-r\tau}P_2
+\end{equation*}
+\begin{equation}
+	- Ke^{-r\tau} \frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} \left( \frac{\partial C_2}{\partial t} + v\frac{\partial D_2}{\partial t} \right) f_2 \right\} d\phi.
+\end{equation}
+Similarly to previous Greeks, we can simplify to obtain:
+\begin{eqnarray}
+	\Theta_H &  = & -\frac{Kre^{-r\tau}}{2} +\frac{1}{\pi} \int_0^\infty Re \left\{-\frac{ie^{-i\phi \ln K}}{\phi} \left[ \left( \frac{\partial C_1}{\partial t} + v\frac{\partial D_1}{\partial t} \right ) f_1S_t\right. \right. \notag\\
+	&  & - f_2Ke^{-r\tau}\left. \left.  \left(r + \frac{\partial C_2}{\partial t} + v\frac{\partial D_2}{\partial t} \right ) \right] \right\} d\phi.
+\end{eqnarray}
+
+
+
+\subsubsection*{Vega}
+
+Vega measures the sensitivity of the theoretical value of an option to a change in the volatility of returns of the underlying asset.
+
+\begin{equation}
+	\mbox{Vega}_H = \frac{\partial U}{\partial v} = S_t\frac{\partial P_1}{\partial v} - Ke^{-r\tau} \frac{\partial P_2}{\partial v}.
+	\label{eq:Heston_Vega_Start}
+\end{equation}
+Similar to Equation (\ref{eq:Heston_prob_S}) we have:
+\begin{equation}
+	\frac{\partial P_j}{\partial v} = \frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} \frac{\partial f_j(x,v,\tau;\phi)}{\partial v} \right\} d\phi.
+	\label{eq:Heston_Prob_v} 
+\end{equation} 
+Differentiating the characteristic function solution with respect to \textit{v} gives:
+\begin{equation}
+	\frac{\partial f_j(x,v,\tau;\phi)}{\partial v} = f_j(x,v,\tau;\phi) D_j(\tau;\phi).
+	\label{eq:Heston_dfdv}
+\end{equation}
+Therefore, Equation (\ref{eq:Heston_Prob_v}) becomes:
+\begin{equation}
+	\frac{\partial P_j}{\partial v} = \frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} f_j(x,v,\tau;\phi)D_j(\tau;\phi) \right\} d\phi. 
+	\label{eq:Heston_Prob_v2}
+\end{equation}
+Substituting Equation (\ref{eq:Heston_Prob_v2}) into Equation (\ref{eq:Heston_Vega_Start}) to obtain \textit{Vega$_H$}:
+\begin{equation*}
+	\hspace{-55pt} \mbox{Vega}_H =S_t\frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} f_1(x,v,\tau;\phi)D_1(\tau;\phi) \right\} d\phi
+\end{equation*}
+\begin{equation}
+	\quad \quad \quad \quad \quad \quad - Ke^{-r\tau}\frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} f_2(x,v,\tau;\phi)D_2(\tau;\phi) \right\} d\phi.
+	\label{eq:Heston_Vega}
+\end{equation}
+Factorising $\textit{Vega}_H$
+\begin{equation}
+	\mbox{Vega}_H = \frac{1}{\pi}\int_0^\infty Re \left\{ \frac{ie^{-i\phi \ln K}}{\phi} \left(   Ke^{-r\tau}f_2D_2-S_tf_1D_1 \right) \right\} d\phi
+	\label{eq:Heston_Vega_Fact}
+\end{equation}
+
+\subsubsection*{Volga}
+
+Volga measures the sensitivity of Vega to a change in the volatility of returns of the underlying asset.
+
+\begin{equation*}
+	Volga_H = \frac{\partial^2 C}{\partial v^2} = \frac{\partial Vega_H}{\partial v}
+\end{equation*}
+Using Equation (\ref{eq:Heston_dfdv}) to differentiate Equation (\ref{eq:Heston_Vega_Fact}) with respect to $\textit{v}$:
+\begin{equation}
+	\mbox{Volga}_H = \frac{1}{\pi}\int_0^\infty Re \left\{ \frac{ie^{-i\phi \ln K}}{\phi} \left(  Ke^{-r\tau}f_2D_2^2 - S_tf_1D_1^2 \right) \right\} d\phi
+\end{equation}
+
+\subsubsection*{Vanna}
+
+Vanna measures the sensitivity of Delta to a change in the volatility of returns of the underlying asset.
+
+\[Vanna_H = \frac{\partial^2C}{\partial S \partial v}= \frac{\partial \Delta}{\partial v} \]
+
+Using Equation (\ref{eq:Heston_dfdv}) to differentiate Equation (\ref{Del}) with respect to \textit{v}:
+\begin{equation}
+	\mbox{Vanna}_H = \frac{1}{\pi}\int_0^\infty \mbox{Re}\left\{e^{-i \phi \ln K} \left(\left(1-\frac{i}{\phi}\right) f_1D_1-\frac{K e^{-r\tau}}{S_t}f_2D_2\right)\right\}d \phi
+\end{equation}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+\end{document}
