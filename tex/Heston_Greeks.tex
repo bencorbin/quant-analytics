@@ -282,12 +282,12 @@ Differentiating with respect to \textit{r}
 
 
 
-\subsubsection*{Theta}
+\subsubsection*{Theta - Call}
 
 Theta measures the sensitivity of the theoretical value of an option to a change in the time to maturity.
 
 \begin{equation}
-	\mbox{Theta}_H = \Theta_H = \frac{\partial U}{\partial t} = S_t\frac{\partial P_1}{\partial t} - Kre^{-r(T-t)}P_2 - ke^{-r(T-t)}\frac{\partial P_2}{\partial t}
+	\mbox{Theta}_H = \Theta_H = \frac{\partial C}{\partial t} = S_t\frac{\partial P_1}{\partial t} + Kre^{-r\tau}P_2 - ke^{-r\tau}\frac{\partial P_2}{\partial t}
 	\label{eq:Heston_theta_start}
 \end{equation}
 Differentiating the desired probabilities with respect to \textit{t} gives:
@@ -297,25 +297,25 @@ Differentiating the desired probabilities with respect to \textit{t} gives:
 \end{equation}
 Differentiating the characteristic function solution with respect to \textit{t} gives:
 \begin{equation}
-\frac{\partial f_j}{\partial t} = \frac{\partial e^{C_j((T-t);\phi) + D_j((T-t);\phi)v + i\phi x}}{\partial t}
+\frac{\partial f_j}{\partial t} = \frac{\partial e^{C_j(\tau;\phi) + D_j(\tau;\phi)v + i\phi x}}{\partial t}
 	\label{eq:Heston_dfdt}
 \end{equation}
 \begin{equation}
 	= \left(\frac{\partial C_j}{\partial t} + v\frac{\partial D_j}{\partial t}\right)f_j
 	\label{eq:Heston_dfdt2}
 \end{equation}
-Terms $C_j((T-t);\phi)$ \& $D_j((T-t);\phi)$ contain \textit{t}. Differentiating $C_j((T-t);\phi)$ with respect to t:
+Terms $C_j(\tau;\phi)$ \& $D_j(\tau;\phi)$ contain \textit{t}. Differentiating $C_j(\tau;\phi)$ with respect to t:
 \begin{equation}
-	\frac{\partial C_j}{\partial t} = -r\phi i + \frac{a}{\sigma^2} \left\{ -(b_j-\rho \sigma \phi i + d) - \frac{2\delta d e^{d(T-t)}}{1-\delta e^{d(T-t)}} \right\}
+	\frac{\partial C_j}{\partial t} = -r\phi i + \frac{a}{\sigma^2} \left\{ -(b_j-\rho \sigma \phi i + d) - \frac{2\delta d e^{d\tau}}{1-\delta e^{d\tau}} \right\}
 	\label{eq:Heston_dcdt}
 \end{equation}
 Recall:
 \begin{equation*}
-	D_j((T-t);\phi) = \frac{b_j - \rho \sigma \phi i + d}{\sigma^2} \left[ \frac{1 - e^{d (T-t)}}{1 - \delta e^{d (T-t)}} \right],
+	D_j(\tau;\phi) = \frac{b_j - \rho \sigma \phi i + d}{\sigma^2} \left[ \frac{1 - e^{d\tau}}{1 - \delta e^{d\tau}} \right],
 \end{equation*}
 Differentiating $D_j(\tau;\phi)$ with respect to \textit{t}:
 \begin{equation}
-	\frac{\partial D_j}{\partial t} = \frac{b_j - \rho \sigma \phi i + d}{\sigma^2} \left\{ \frac{de^{d(T-t)}}{1-\delta e^{d(T-t)}} - \frac{\delta d e^{d(T-t)}(1-e^{d(T-t)})}{(1-\delta e^{d(T-t)})^2} \right\}
+	\frac{\partial D_j}{\partial t} = \frac{b_j - \rho \sigma \phi i + d}{\sigma^2} \left\{ \frac{de^{d\tau}}{1-\delta e^{d\tau}} - \frac{\delta d e^{d\tau}(1-e^{d\tau})}{(1-\delta e^{d\tau})^2} \right\}
 	\label{eq:Heston_dddt}
 \end{equation}
 Substituting Equation (\ref{eq:Heston_dfdt2}) into (\ref{eq:Heston_dpdt}):
@@ -325,7 +325,7 @@ Substituting Equation (\ref{eq:Heston_dfdt2}) into (\ref{eq:Heston_dpdt}):
 \end{equation}
 Finally, substituting Equation (\ref{eq:Heston_dpdt2}) into Equation (\ref{eq:Heston_theta_start}) to obtain \textit{Theta$_H$}:
 \begin{equation*}
-	\hspace{-40pt} \Theta_H = S_t \frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} \left( \frac{\partial C_1}{\partial t} + v\frac{\partial D_1}{\partial t} \right) f_1 \right\} d\phi - Kre^{-r\tau}P_2
+	\hspace{-40pt} \Theta_H = S_t \frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} \left( \frac{\partial C_1}{\partial t} + v\frac{\partial D_1}{\partial t} \right) f_1 \right\} d\phi + Kre^{-r\tau}P_2
 \end{equation*}
 \begin{equation}
 	- Ke^{-r\tau} \frac{1}{\pi}\int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} \left( \frac{\partial C_2}{\partial t} + v\frac{\partial D_2}{\partial t} \right) f_2 \right\} d\phi.
@@ -333,8 +333,74 @@ Finally, substituting Equation (\ref{eq:Heston_dpdt2}) into Equation (\ref{eq:He
 Similarly to previous Greeks, we can simplify to obtain:
 \begin{eqnarray}
 	\Theta_H &  = & -\frac{Kre^{-r\tau}}{2} +\frac{1}{\pi} \int_0^\infty Re \left\{-\frac{ie^{-i\phi \ln K}}{\phi} \left[ \left( \frac{\partial C_1}{\partial t} + v\frac{\partial D_1}{\partial t} \right ) f_1S_t\right. \right. \notag\\
-	&  & - f_2Ke^{-r\tau}\left. \left.  \left(r + \frac{\partial C_2}{\partial t} + v\frac{\partial D_2}{\partial t} \right ) \right] \right\} d\phi.
+	&  & - f_2Ke^{-r\tau}\left. \left.  \left(-r + \frac{\partial C_2}{\partial t} + v\frac{\partial D_2}{\partial t} \right ) \right] \right\} d\phi.
 \end{eqnarray}
+
+
+
+
+\newpage
+
+
+
+
+\subsubsection*{Theta - Put}
+
+Recall the closed-form solution:
+\begin{equation}
+	P_t  = Ke^{-r\tau}(1-P_2) -  S_t(1-P_1)
+\end{equation}
+
+Differentiating with respect to t:
+
+\begin{align*}
+	\mbox{Theta}_H 
+	&
+	=
+	\Theta_H = \frac{\partial P}{\partial t} = 
+	-rke^{-r\tau} 
+	+ rke^{-r\tau}P_2 
+	- ke^{-r\tau}\frac{\partial P_2}{\partial t}
+	+ S_t\frac{\partial P_1}{\partial t}
+	\\
+	&
+	\\
+	&
+	=
+	- \frac{rke^{-r\tau}}{2} \\
+	&
+	\quad \quad \quad + \frac{rke^{-r\tau}}{\pi} \int_0^{\infty} Re \left[ \frac{e^{-i\phi \ln K}}{i\phi}f_2 \right] \\
+	& \quad \quad \quad - \frac{ke^{-r\tau}}{\pi} \int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} \left( \frac{\partial C_2}{\partial t} + v\frac{\partial D_2}{\partial t} \right) f_2 \right\} \\
+	& \quad \quad \quad + \frac{S}{\pi} \int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} \left( \frac{\partial C_1}{\partial t} + v\frac{\partial D_1}{\partial t} \right) f_1 \right\} 
+	\\
+	&
+	\\
+	&
+	=
+	- \frac{rke^{-r\tau}}{2} + \frac{1}{\pi} \int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} \bigg[ rKe^{-r\tau} f_2 \right. \\
+	& \quad \quad \quad - Ke^{-r\tau} \left(\frac{\partial C_2}{\partial t} + v\frac{\partial D_2}{\partial t} \right) f_2 \\
+	& \quad \quad \quad + S \left(\frac{\partial C_1}{\partial t} + v\frac{\partial D_1}{\partial t} \right) f_1  \left. \left. \bigg] \bigg\}
+	\\
+	&
+	\\
+	&
+	=
+	- \frac{rKe^{-r\tau}}{2} \\
+	& \quad \quad \quad + \frac{1}{\pi} \int_0^\infty Re \left\{-\frac{ie^{-i\phi \ln K}}{\phi} \left[ \left( \frac{\partial C_1}{\partial t} + v\frac{\partial D_1}{\partial t} \right ) f_1S_t  \\
+	& \quad \quad \quad - f_2Ke^{-r\tau}\left. \left.  \left(-r + \frac{\partial C_2}{\partial t} + v\frac{\partial D_2}{\partial t} \right ) \right] \right\} d\phi
+\end{align*}
+
+
+
+
+
+
+
+\newpage
+
+
+
+
 
 
 
