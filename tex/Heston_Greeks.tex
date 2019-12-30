@@ -16,7 +16,7 @@
 
 \begin{document}
 
-\subsection{Heston Greeks}
+\section{Heston Greeks}
 
 In the Heston model we have the following PDE \cite{Heston_1993}:
 
@@ -377,9 +377,9 @@ Differentiating with respect to t:
 	\\
 	&
 	=
-	- \frac{rke^{-r\tau}}{2} + \frac{1}{\pi} \int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} \bigg[ rKe^{-r\tau} f_2 \right. \\
+	- \frac{rke^{-r\tau}}{2} + \frac{1}{\pi} \int_0^{\infty} Re \left\{ \frac{e^{-i\phi \ln K}}{i\phi} \bigg[ rKe^{-r\tau} f_2 \\
 	& \quad \quad \quad - Ke^{-r\tau} \left(\frac{\partial C_2}{\partial t} + v\frac{\partial D_2}{\partial t} \right) f_2 \\
-	& \quad \quad \quad + S \left(\frac{\partial C_1}{\partial t} + v\frac{\partial D_1}{\partial t} \right) f_1  \left. \left. \bigg] \bigg\}
+	& \quad \quad \quad + S \left(\frac{\partial C_1}{\partial t} + v\frac{\partial D_1}{\partial t} \right) f_1  \bigg] \bigg\}
 	\\
 	&
 	\\
@@ -387,7 +387,7 @@ Differentiating with respect to t:
 	=
 	- \frac{rKe^{-r\tau}}{2} \\
 	& \quad \quad \quad + \frac{1}{\pi} \int_0^\infty Re \left\{-\frac{ie^{-i\phi \ln K}}{\phi} \left[ \left( \frac{\partial C_1}{\partial t} + v\frac{\partial D_1}{\partial t} \right ) f_1S_t  \\
-	& \quad \quad \quad - f_2Ke^{-r\tau}\left. \left.  \left(-r + \frac{\partial C_2}{\partial t} + v\frac{\partial D_2}{\partial t} \right ) \right] \right\} d\phi
+	& \quad \quad \quad - f_2Ke^{-r\tau}\left. \left. \left(-r + \frac{\partial C_2}{\partial t} + v\frac{\partial D_2}{\partial t} \right) \right] \right\} d\phi
 \end{align*}
 
 
