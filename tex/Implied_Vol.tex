@@ -1,0 +1,127 @@
+\documentclass[a4paper]{article}
+\usepackage[parfill]{parskip}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[T1]{fontenc}
+\usepackage{enumerate}
+\usepackage{mathtools}
+\usepackage{fancyref}
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[usenames, dvipsnames]{color}
+\usepackage{rotating}
+\usepackage{comment}
+
+\begin{document}
+
+\section{Implied Volatility}
+
+
+
+The Black-Scholes option pricing formula depends on \textit{S}, \textit{E}, \textit{r}, $\tau$, and $\sigma^2$. The asset volatility, $\sigma$, is the only parameter that cannot be observed directly. In practice, analysts use the observed market price, and  knowing \textit{S}, \textit{E}, \textit{r} and $\tau$, they back out the volatility when using the Black-Scholes model. The volatility obtained using this methodology is referred to as the \textit{implied volatility}. The implied volatility can vary, contradicting the assumption of constant volatility. This phenomenon is known as the volatility smile.
+
+The smile first appeared in options markets in 1987. Pre 1987 financial crash, implied volatility followed the Black-Scholes model attributing a single lognormal volatility to an underlying stock at all times and all strike prices \cite{Smile}. Therefore, predicting a flat implied volatility surface. Post 1987, index options' volatility surfaces have become skewed. This has since spread to stock options, currency option, and interest rate options.
+
+A common explanation for the smile in equity options concerns leverage. As the equity of a company declines in value, the leverage increases. In doing so, it's volatility increases due to the equity becoming more risky. Conversely, as the equity of a company increases in value, leverage decreases. Resulting in the equity becoming less risky and its volatility decreases.
+
+\subsection{Black-Scholes Implied Volatility} \label{sec:BS_Imp_Vol_New}
+
+From the market data we are able to assigned values to \textit{E}, \textit{r}, \textit{T} and \textit{S}. Thus, the volatility is the only unknown parameter and therefore the option value can be treated as a function of $\sigma$, denoted C($\sigma$), where the quoted value of the call option is denoted C($\sigma^*$). The aim is to find the implied volatility, $\sigma$, that solves C($\sigma$)=C($\sigma^*$).
+
+We shall use Newton's method to solve this nonlinear equation. Newton's method takes the form:
+
+\begin{equation*}
+	\sigma_{(n+1)}=\sigma_n-\frac{F(\sigma_n)}{F'(\sigma_n)},
+\end{equation*}
+
+where F($\sigma$)=C($\sigma$)-C($\sigma^*$)=0, and F'($\sigma$)=$\partial$C/$\partial \sigma$. This process is iterated until a certain tolerance in met.
+
+For the initial guess of the implied volatility, we use
+
+\begin{equation*}
+	\hat{\sigma}=\sqrt{2\bigg|\frac{log(S/E)+r(T-t)}{T-t}\bigg|}.
+\end{equation*} 
+
+We use this value as our initial guess as this value maximises the differential with respect to $\sigma$ ($\partial C/$$\partial \sigma$) over $[0,\infty)$.
+
+ Additionally, it ensures that the error in $\sigma_{n+1}$ is smaller than, but has the same sign (positive) as, the error in $\sigma_n$ \cite{Higham_2004}. Furthermore, the error decreases monotonically as \textit{n} increases.
+
+
+\subsection{Derivation of Initial Implied Volatility Guess}
+
+The first and second differentials of the cumulative normal density function are the following:
+
+\[ N'(x) = \frac{1}{\sqrt{2\pi}}e^{-\frac{1}{2}x^2} \quad \& \quad N''(X) = \frac{-x}{\sqrt{2\pi}}e^{-\frac{1}{2}x^2}. \]
+
+From Index (\ref{sec:Greeks}) we have the following equation for the differential of a European call option with respect to $\sigma$:
+
+\[ \frac{\partial C}{\partial \sigma} = \sqrt{T-t}SN'(d_1). \]	
+
+To find the maximum of $\frac{\partial C}{\partial \sigma}$ we have to differentiate again with respect to $\sigma$:
+
+\[ \frac{\partial^2 C}{\partial \sigma^2} = \sqrt{T-t}SN''(d_1)\frac{\partial d_1}{\partial \sigma}. \]	
+
+Additionally, we have the following differential of $d_1$ with respect to $\sigma$:
+
+\begin{align*}
+	\frac{\partial d_1}{\partial \sigma} & = \frac{-log(S/E)}{\sigma^2 \sqrt{T-t}} + \frac{T-t}{\sqrt{T-t}}\big(-\frac{r}{\sigma^2} + \frac{1}{2} \big) \\
+	& = -\left[ \frac{log(S/E) + r(T-t) - \frac{\sigma^2}{2}(t-t)}{\sigma^2\sqrt{T-t}} \right] \\
+	& = - \left[ \frac{log(S/E) + (r-\frac{\sigma^2}{2})(T-t)}{\sigma^2\sqrt{T-t}} \right] \\
+	& = -\frac{d_2}{\sigma}. \\
+\end{align*}
+Giving:
+\[ \frac{\partial^2 C}{\partial \sigma^2} = \frac{S\sqrt{T-t}}{\sqrt{2\pi}}e^{-\frac{1}{2}}d_1^2\frac{d_1d_2}{\sigma}. \]
+$\frac{\partial^2 C}{\partial \sigma^2}=0$ when $d_1d_2=0$. Recall $d_1$ and $d_2$:
+\begin{align*}
+	d_1 & = \frac{log(\frac{S}{E}) + (r + \frac{1}{2} \sigma^2)(T-t)}{\sigma \sqrt{T-t}}, \\
+	d_2 & = \frac{log(\frac{S}{E}) + (r - \frac{1}{2} \sigma^2)(T-t)}{\sigma \sqrt{T-t}}.
+\end{align*}
+$d_1=0$ when:
+\[ \sigma = \sqrt{-2 \left[ \frac{log(S/E) + r(T-t)}{T-t}\right]}. \] 
+$d_2=0$ when:
+\[ \sigma = \sqrt{2 \left[ \frac{log(S/E) + r(T-t)}{T-t}\right]}. \]
+Therefore, $d_1d_2=0$ when:
+\[ \sigma = \sqrt{2 \left| \frac{log(S/E) + r(T-t)}{T-t} \right| }. \]
+
+
+
+\newpage
+
+
+
+\begin{thebibliography}{99}
+
+\bibitem{Smile} \textbf{Emanuel Derman (2003).} "Laughter In The Dark - The Problem Of The Volatility Smile."
+
+\bibitem{Higham_2004}\textbf{Higham, D. J. (2004).} "An Introduction To Financial Option Valuation: Mathematics, Stochastics And Computation.", p.131-140.
+
+
+\end{thebibliography}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+\end{document}
